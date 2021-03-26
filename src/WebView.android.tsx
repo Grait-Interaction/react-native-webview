@@ -391,6 +391,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
         onMessage={this.onMessage}
         onShouldStartLoadWithRequest={this.onShouldStartLoadWithRequest}
         ref={this.webViewRef}
+        onReceivedClientCertRequest={this.onReceivedClientCertRequest}
         // TODO: find a better way to type this.
         source={resolveAssetSource(source as ImageSourcePropType)}
         style={webViewStyles}
