@@ -64,6 +64,18 @@ declare class WebView<P = {}> extends Component<WebViewProps & P> {
      * Tells this WebView to clear its internal back/forward list.
      */
     clearHistory: () => void;
+
+    /**
+     * (Android only)
+     * Tells webview to open native android certificate selector
+     */
+    openCertificateSelector: () => void;
+
+    /**
+     * (Android only)
+     * Clears certificates
+     */
+    clearCertificates: () => void;
 }
 
 export {WebView};

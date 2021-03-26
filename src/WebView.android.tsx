@@ -166,6 +166,28 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
   };
 
   /**
+   * Sends request to open native certificate selector
+   */
+  openCertificateSelector = () => {
+    UIManager.dispatchViewManagerCommand(
+      this.getWebViewHandle(),
+      this.getCommands().openCertificateSelector,
+      undefined,
+    );
+  }
+
+  /**
+   * Clears any 
+   */
+  clearCertificates = () => {
+    UIManager.dispatchViewManagerCommand(
+      this.getWebViewHandle(),
+      this.getCommands().clearCertificates,
+      undefined,
+    );
+  }
+
+  /**
    * Injects a javascript string into the referenced WebView. Deliberately does not
    * return a response because using eval() to return a response breaks this method
    * on pages with a Content Security Policy that disallows eval(). If you need that
@@ -230,6 +252,10 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
     if (onHttpError) {
       onHttpError(event);
     }
+  }
+
+  onReceivedClientCertRequest = () => {
+    // 
   }
 
   onRenderProcessGone = (event: WebViewRenderProcessGoneEvent) => {
