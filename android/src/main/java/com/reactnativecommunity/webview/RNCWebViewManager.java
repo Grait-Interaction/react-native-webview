@@ -15,6 +15,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Message;
 import android.os.SystemClock;
+import android.security.KeyChain;
+import android.security.KeyChainAliasCallback;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -1449,6 +1451,32 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
           ;(ref as WebView).openCertificateSelector()
 
        */
+
+      KeyChainAliasCallback callback = new KeyChainAliasCallback() {
+        @Override
+        public void alias(@Nullable String alias) {
+          if (alias == null) {
+            post(new Runnable() {
+              @Override
+              public void run() {
+                //reloadWebViewWithClearedCertificates(new EmptyCertAndKey());
+              }
+            });
+          } else {
+              Log.i(TAG, "alias: " + alias + " selected. Loading cert and reloading web view.");
+
+
+            //Get selected cert and reload web view
+          }
+        }
+      };
+
+      KeyChain.choosePrivateKeyAlias(((ThemedReactContext)getContext()).getCurrentActivity(), callback,
+        null,
+        null,
+        "localhost",
+        -1,
+        null);
     }
 
     protected void evaluateJavascriptWithFallback(String script) {
