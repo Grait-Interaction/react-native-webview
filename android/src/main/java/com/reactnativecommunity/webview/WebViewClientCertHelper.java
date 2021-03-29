@@ -19,31 +19,39 @@ import java.security.cert.X509Certificate;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * Helper class for managing certificate requests in web view.
+ */
 public class WebViewClientCertHelper {
 
   public static final String PREFS_KEY_ALIAS = "alias";
   public static final String SHARED_PREFS_FOR_KEY_ALIAS = "keyAliasSharedPrefs";
   private static final String TAG = "WebViewClientCertHelper";
-  private final RNCWebViewManager.RNCWebViewClient webViewClient;
+
   private final RNCWebViewManager.RNCWebView webView;
+
   private CertAndKey certAndKey = new EmptyCertAndKey();
 
-  public WebViewClientCertHelper(RNCWebViewManager.RNCWebView webView, RNCWebViewManager.RNCWebViewClient webViewClient) {
+  public WebViewClientCertHelper(RNCWebViewManager.RNCWebView webView) {
     this.webView = webView;
-    this.webViewClient = webViewClient;
   }
 
+  /**
+   * Web page has requested a client certificate.
+   *
+   * @param request
+   */
   public void onReceivedClientCertRequest(ClientCertRequest request) {
-    Log.i(TAG, "onReceivedClientCertRequest");
+//    Log.i(TAG, "onReceivedClientCertRequest");
     if (Build.VERSION.SDK_INT >= 21) {
       if (certAndKey.hasCert()) {
-        Log.i(TAG, "hasCert. proceeding");
+//        Log.i(TAG, "hasCert. proceeding");
         //If already has selected cert, just proceed with it
         request.proceed(certAndKey.getPrivateKey(), certAndKey.getCertificates());
       } else {
-        //Check shared preferences for previous cert alias
-        final String previousAlias = webView.getContext().getSharedPreferences(SHARED_PREFS_FOR_KEY_ALIAS, Context.MODE_PRIVATE).getString(PREFS_KEY_ALIAS, null);
-        Log.i(TAG, "checking shared prefs");
+        //Check shared preferences for any previously selected cert alias
+        final String previousAlias = getSharedPreferences().getString(PREFS_KEY_ALIAS, null);
+//        Log.i(TAG, "checking shared prefs");
         if (previousAlias != null) {
           tryUsingPreviousCert(previousAlias);
         } else {
@@ -54,6 +62,18 @@ public class WebViewClientCertHelper {
     }
   }
 
+  private SharedPreferences getSharedPreferences() {
+    return getWebViewContext().getSharedPreferences(SHARED_PREFS_FOR_KEY_ALIAS, Context.MODE_PRIVATE);
+  }
+
+  private ThemedReactContext getWebViewContext() {
+    return (ThemedReactContext) webView.getContext();
+  }
+
+  private Context getApplicationContext() {
+    return getWebViewContext().getApplicationContext();
+  }
+
   /**
    * Gets the certificate information for the alias from KeyChain
    *
@@ -62,9 +82,9 @@ public class WebViewClientCertHelper {
    */
   @NonNull
   private CertAndKey getFromKeyChain(String alias) {
-    Log.i(TAG, "getFromKeyChain: " + alias);
+//    Log.i(TAG, "getFromKeyChain: " + alias);
     try {
-      Context context = webView.getContext().getApplicationContext();
+      Context context = getApplicationContext();
       X509Certificate[] mCertificates = KeyChain.getCertificateChain(context, alias);
       PrivateKey mPrivateKey = KeyChain.getPrivateKey(context, alias);
       return new CertAndKeyImpl(mCertificates, mPrivateKey, alias);
@@ -76,7 +96,8 @@ public class WebViewClientCertHelper {
 
 
   private void tryUsingPreviousCert(String alias) {
-    Log.i(TAG, "tryUsingPreviousCert: " + alias);
+//    Log.i(TAG, "tryUsingPreviousCert: " + alias);
+    //Using AsyncTask since getFromKeyChain should not run on main thread
     AsyncTask<String, Void, CertAndKey> task = new AsyncTask<String, Void, CertAndKey>() {
       @Override
       protected CertAndKey doInBackground(String... params) {
@@ -96,7 +117,7 @@ public class WebViewClientCertHelper {
   }
 
   public void chooseCertificate() {
-    Log.i(TAG, "chooseCertificate");
+//    Log.i(TAG, "chooseCertificate");
     KeyChainAliasCallback callback = new KeyChainAliasCallback() {
       @Override
       public void alias(@Nullable String alias) {
@@ -110,7 +131,7 @@ public class WebViewClientCertHelper {
       }
     };
 
-    KeyChain.choosePrivateKeyAlias(((ThemedReactContext) webView.getContext()).getCurrentActivity(), callback,
+    KeyChain.choosePrivateKeyAlias(getWebViewContext().getCurrentActivity(), callback,
       null,
       null,
       "localhost",
@@ -119,13 +140,13 @@ public class WebViewClientCertHelper {
   }
 
   private void reloadWebViewWithClearedCertificates(final CertAndKey certAndKey) {
-    Log.i(TAG, "reloadWebViewWithClearedCertificates: " + certAndKey);
+//    Log.i(TAG, "reloadWebViewWithClearedCertificates: " + certAndKey);
     if (Build.VERSION.SDK_INT >= 21) {
       this.certAndKey = certAndKey;
       WebView.clearClientCertPreferences(new Runnable() {
         @Override
         public void run() {
-          SharedPreferences.Editor prefsEditor = webView.getContext().getSharedPreferences(SHARED_PREFS_FOR_KEY_ALIAS, Context.MODE_PRIVATE).edit();
+          SharedPreferences.Editor prefsEditor = getSharedPreferences().edit();
           if (certAndKey.hasCert()) {
             prefsEditor.putString(PREFS_KEY_ALIAS, certAndKey.getAlias()).apply();
             webView.reload();
@@ -134,8 +155,6 @@ public class WebViewClientCertHelper {
             while (webView.canGoBack()) {
               webView.goBack();
             }
-//            webView.reload();
-//            webView.loadUrl(URL);
           }
         }
       });
@@ -143,7 +162,7 @@ public class WebViewClientCertHelper {
   }
 
   public void clearCertificates() {
-    Log.i(TAG, "clearCertificates: " + certAndKey);
+//    Log.i(TAG, "clearCertificates: " + certAndKey);
     reloadWebViewWithClearedCertificates(new EmptyCertAndKey());
   }
 

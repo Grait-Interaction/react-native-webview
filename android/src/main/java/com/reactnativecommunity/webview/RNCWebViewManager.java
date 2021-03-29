@@ -1313,7 +1313,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
     private OnScrollDispatchHelper mOnScrollDispatchHelper;
     protected boolean hasScrollEvent = false;
     protected ProgressChangedFilter progressChangedFilter;
-    private WebViewClientCertHelper certHelper;
+    private final WebViewClientCertHelper certHelper;
 
     /**
      * WebView must be created with an context of the current activity
@@ -1325,6 +1325,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
       super(reactContext);
       this.createCatalystInstance();
       progressChangedFilter = new ProgressChangedFilter();
+      certHelper = new WebViewClientCertHelper(this);
     }
 
     public void setIgnoreErrFailedForThisURL(String url) {
@@ -1380,7 +1381,6 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
       if (client instanceof RNCWebViewClient) {
         mRNCWebViewClient = (RNCWebViewClient) client;
         mRNCWebViewClient.setProgressChangedFilter(progressChangedFilter);
-        certHelper = new WebViewClientCertHelper(this, mRNCWebViewClient);
       }
     }
 
