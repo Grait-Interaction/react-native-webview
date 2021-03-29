@@ -137,6 +137,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
   public static final int COMMAND_CLEAR_CACHE = 1001;
   public static final int COMMAND_CLEAR_HISTORY = 1002;
   public static final int COMMAND_OPEN_CERTIFICATE_SELECTOR = 1003;
+  public static final int COMMAND_CLEAR_CERTIFICATES = 1004;
 
   protected static final String REACT_CLASS = "RNCWebView";
   protected static final String HTML_ENCODING = "UTF-8";
@@ -642,6 +643,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
       .put("clearCache", COMMAND_CLEAR_CACHE)
       .put("clearHistory", COMMAND_CLEAR_HISTORY)
       .put("openCertificateSelector", COMMAND_OPEN_CERTIFICATE_SELECTOR)
+      .put("clearCertificates", COMMAND_CLEAR_CERTIFICATES)
       .build();
   }
 
@@ -705,11 +707,12 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
       case COMMAND_CLEAR_HISTORY:
         root.clearHistory();
         break;
-      case COMMAND_OPEN_CERTIFICATE_SELECTOR: {
-        RNCWebView reactWebView = (RNCWebView) root;
-        reactWebView.openCertificateSelector();
+      case COMMAND_OPEN_CERTIFICATE_SELECTOR:
+        ((RNCWebView) root).openCertificateSelector();
         break;
-      }
+      case COMMAND_CLEAR_CERTIFICATES:
+        ((RNCWebView) root).clearCertificates();
+        break;
     }
   }
 
@@ -1093,6 +1096,8 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
 
        */
 
+      ((RNCWebView)webView).onReceivedClientCertRequest(request);
+
     }
 
     protected void emitFinishEvent(WebView webView, String url) {
@@ -1308,6 +1313,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
     private OnScrollDispatchHelper mOnScrollDispatchHelper;
     protected boolean hasScrollEvent = false;
     protected ProgressChangedFilter progressChangedFilter;
+    private WebViewClientCertHelper certHelper;
 
     /**
      * WebView must be created with an context of the current activity
@@ -1374,6 +1380,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
       if (client instanceof RNCWebViewClient) {
         mRNCWebViewClient = (RNCWebViewClient) client;
         mRNCWebViewClient.setProgressChangedFilter(progressChangedFilter);
+        certHelper = new WebViewClientCertHelper(this, mRNCWebViewClient);
       }
     }
 
@@ -1451,32 +1458,11 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
           ;(ref as WebView).openCertificateSelector()
 
        */
+      certHelper.chooseCertificate();
+    }
 
-      KeyChainAliasCallback callback = new KeyChainAliasCallback() {
-        @Override
-        public void alias(@Nullable String alias) {
-          if (alias == null) {
-            post(new Runnable() {
-              @Override
-              public void run() {
-                //reloadWebViewWithClearedCertificates(new EmptyCertAndKey());
-              }
-            });
-          } else {
-              Log.i(TAG, "alias: " + alias + " selected. Loading cert and reloading web view.");
-
-
-            //Get selected cert and reload web view
-          }
-        }
-      };
-
-      KeyChain.choosePrivateKeyAlias(((ThemedReactContext)getContext()).getCurrentActivity(), callback,
-        null,
-        null,
-        "localhost",
-        -1,
-        null);
+    protected void clearCertificates(){
+      certHelper.clearCertificates();
     }
 
     protected void evaluateJavascriptWithFallback(String script) {
@@ -1592,6 +1578,10 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
         mWebChromeClient.onHideCustomView();
       }
       super.destroy();
+    }
+
+    public void onReceivedClientCertRequest(ClientCertRequest request) {
+      certHelper.onReceivedClientCertRequest(request);
     }
 
     protected class RNCWebViewBridge {
