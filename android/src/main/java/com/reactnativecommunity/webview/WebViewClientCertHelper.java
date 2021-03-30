@@ -152,9 +152,7 @@ public class WebViewClientCertHelper {
             webView.reload();
           } else {
             prefsEditor.remove(PREFS_KEY_ALIAS).apply();
-            while (webView.canGoBack()) {
-              webView.goBack();
-            }
+            webView.reload();
           }
         }
       });
