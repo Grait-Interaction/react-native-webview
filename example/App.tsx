@@ -19,9 +19,10 @@ import Injection from './examples/Injection';
 import LocalPageLoad from './examples/LocalPageLoad';
 import Messaging from './examples/Messaging';
 import NativeWebpage from './examples/NativeWebpage';
+import TestCertificate from './examples/TestCertificate';
 import ApplePay from './examples/ApplePay';
 
-const TESTS = {
+const TESTS: any = {
   Messaging: {
     title: 'Messaging',
     testId: 'messaging',
@@ -94,6 +95,14 @@ const TESTS = {
       return <NativeWebpage />;
     },
   },
+  TestCertificate: {
+    title: 'TestCertificate',
+    testId: 'TestCertificate',
+    description: 'Test to open certificate selector',
+    render() {
+      return <TestCertificate />;
+    },
+  },
   ApplePay: {
     title: 'Apple Pay ',
     testId: 'ApplePay',
@@ -117,7 +126,7 @@ export default class App extends Component<Props, State> {
     this.setState({restarting: true}, () => this.setState({restarting: false}));
   };
 
-  _changeTest = (testName) => {
+  _changeTest = (testName: any) => {
     this.setState({currentTest: TESTS[testName]});
   };
 
@@ -189,6 +198,13 @@ export default class App extends Component<Props, State> {
             title="NativeWebpage"
             onPress={() => this._changeTest('NativeWebpage')}
           />
+          {Platform.OS === 'android' ? 
+            <Button
+              testID="testType_nativeOpenCertificateDialog"
+              title="Select Certificate"
+              onPress={() => this._changeTest('TestCertificate')}
+            />
+          :null}
           {Platform.OS === 'ios' && (
               <Button
                   testID="testType_applePay"

@@ -12,9 +12,20 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 
-type WebViewCommands = 'goForward' | 'goBack' | 'reload' | 'stopLoading' | 'postMessage' | 'injectJavaScript' | 'loadUrl' | 'requestFocus';
+type WebViewCommands = 'goForward' | 
+  'goBack' | 
+  'reload' | 
+  'stopLoading' | 
+  'postMessage' | 
+  'injectJavaScript' | 
+  'loadUrl' | 
+  'requestFocus';
 
-type AndroidWebViewCommands = 'clearHistory' | 'clearCache' | 'clearFormData';
+type AndroidWebViewCommands = 'clearHistory' | 
+  'clearCache' | 
+  'clearFormData' | 
+  'openCertificateSelector' | 
+  'clearCertificates';
 
 
 
@@ -330,6 +341,7 @@ export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
   setDisplayZoomControls?: boolean,
   nestedScrollEnabled?: boolean;
   readonly urlPrefixesForDefaultIntent?: string[];
+  onReceivedClientCertRequest: (event: WebViewEvent) => void;
   forceDarkOn?: boolean;
 }
 
@@ -849,6 +861,7 @@ export interface MacOSWebViewProps extends WebViewSharedProps {
 export interface AndroidWebViewProps extends WebViewSharedProps {
   onNavigationStateChange?: (event: WebViewNavigation) => void;
   onContentSizeChange?: (event: WebViewEvent) => void;
+  onReceivedClientCertRequest?: (event: WebViewEvent) => void;
 
   /**
    * Function that is invoked when the `WebView` process crashes or is killed by the OS.
