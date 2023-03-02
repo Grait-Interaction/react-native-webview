@@ -73,6 +73,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
   source,
   nativeConfig,
   onShouldStartLoadWithRequest: onShouldStartLoadWithRequestProp,
+  onReceivedClientCertRequest: onReceivedClientCertRequestProp,
   ...otherProps
 }, ref) => {
   const messagingModuleName = useRef<string>(`WebViewMessageHandler${uniqueRef += 1}`).current;
@@ -88,7 +89,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     }
   }, []);
 
-  const { onLoadingStart, onShouldStartLoadWithRequest, onMessage, viewState, setViewState, lastErrorEvent, onHttpError, onLoadingError, onLoadingFinish, onLoadingProgress, onRenderProcessGone } = useWebWiewLogic({
+  const { onLoadingStart, onShouldStartLoadWithRequest, onReceivedClientCertRequest, onMessage, viewState, setViewState, lastErrorEvent, onHttpError, onLoadingError, onLoadingFinish, onLoadingProgress, onRenderProcessGone } = useWebWiewLogic({
     onNavigationStateChange,
     onLoad,
     onError,
@@ -102,6 +103,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     originWhitelist,
     onShouldStartLoadWithRequestProp,
     onShouldStartLoadWithRequestCallback,
+    onReceivedClientCertRequestProp,
   })
 
   useImperativeHandle(ref, () => ({
@@ -175,7 +177,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     onRenderProcessGone={onRenderProcessGone}
     onMessage={onMessage}
     onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
-
+    onReceivedClientCertRequest={onReceivedClientCertRequest}
     ref={webViewRef}
     // TODO: find a better way to type this.
     source={resolveAssetSource(source as ImageSourcePropType)}

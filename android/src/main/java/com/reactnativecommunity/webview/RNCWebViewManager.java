@@ -802,10 +802,10 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
       case "clearHistory":
         root.clearHistory();
         break;
-      case COMMAND_OPEN_CERTIFICATE_SELECTOR:
+      case "openCertificateSelector":
         ((RNCWebView) root).openCertificateSelector();
         break;
-      case COMMAND_CLEAR_CERTIFICATES:
+      case "clearCertificates":
         ((RNCWebView) root).clearCertificates();
         break;
     }

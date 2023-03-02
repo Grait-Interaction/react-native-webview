@@ -340,7 +340,7 @@ export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
   setDisplayZoomControls?: boolean;
   nestedScrollEnabled?: boolean;
   readonly urlPrefixesForDefaultIntent?: string[];
-  onReceivedClientCertRequest: (event: WebViewEvent) => void;
+  onReceivedClientCertRequest?: (event: WebViewEvent) => void;
   forceDarkOn?: boolean;
   minimumFontSize?: number;
   downloadingMessage?: string;
