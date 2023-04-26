@@ -30,7 +30,7 @@ import styles from './WebView.styles';
 const codegenNativeCommands = codegenNativeCommandsUntyped as <T extends {}>(options: { supportedCommands: (keyof T)[] }) => T;
 
 const Commands = codegenNativeCommands({
-  supportedCommands: ['goBack', 'goForward', 'reload', 'stopLoading', 'injectJavaScript', 'requestFocus', 'postMessage', 'clearFormData', 'clearCache', 'clearHistory', 'loadUrl'],
+  supportedCommands: ['goBack', 'goForward', 'reload', 'stopLoading', 'injectJavaScript', 'requestFocus', 'postMessage', 'clearFormData', 'clearCache', 'clearHistory', 'loadUrl', 'openCertificateSelector', 'clearCertificates'],
 });
 
 const { resolveAssetSource } = Image;
@@ -73,6 +73,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
   source,
   nativeConfig,
   onShouldStartLoadWithRequest: onShouldStartLoadWithRequestProp,
+  onReceivedClientCertRequest: onReceivedClientCertRequestProp,
   ...otherProps
 }, ref) => {
   const messagingModuleName = useRef<string>(`WebViewMessageHandler${uniqueRef += 1}`).current;
@@ -88,7 +89,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     }
   }, []);
 
-  const { onLoadingStart, onShouldStartLoadWithRequest, onMessage, viewState, setViewState, lastErrorEvent, onHttpError, onLoadingError, onLoadingFinish, onLoadingProgress, onRenderProcessGone } = useWebWiewLogic({
+  const { onLoadingStart, onShouldStartLoadWithRequest, onReceivedClientCertRequest, onMessage, viewState, setViewState, lastErrorEvent, onHttpError, onLoadingError, onLoadingFinish, onLoadingProgress, onRenderProcessGone } = useWebWiewLogic({
     onNavigationStateChange,
     onLoad,
     onError,
@@ -102,6 +103,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     originWhitelist,
     onShouldStartLoadWithRequestProp,
     onShouldStartLoadWithRequestCallback,
+    onReceivedClientCertRequestProp,
   })
 
   useImperativeHandle(ref, () => ({
@@ -119,6 +121,8 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     clearFormData: () => Commands.clearFormData(webViewRef.current),
     clearCache: (includeDiskFiles: boolean) => Commands.clearCache(webViewRef.current, includeDiskFiles),
     clearHistory: () => Commands.clearHistory(webViewRef.current),
+    openCertificateSelector: () => Commands.openCertificateSelector(webViewRef.current),
+    clearCertificates: () => Commands.clearCertificates(webViewRef.current)
   }), [setViewState, webViewRef]);
 
   const directEventCallbacks = useMemo(() => ({
@@ -175,7 +179,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     onRenderProcessGone={onRenderProcessGone}
     onMessage={onMessage}
     onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
-
+    onReceivedClientCertRequest={onReceivedClientCertRequest}
     ref={webViewRef}
     // TODO: find a better way to type this.
     source={resolveAssetSource(source as ImageSourcePropType)}

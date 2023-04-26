@@ -16,6 +16,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Message;
 import android.os.SystemClock;
+import android.security.KeyChain;
+import android.security.KeyChainAliasCallback;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -40,6 +42,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.ClientCertRequest;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -143,6 +146,8 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
   public static final int COMMAND_CLEAR_FORM_DATA = 1000;
   public static final int COMMAND_CLEAR_CACHE = 1001;
   public static final int COMMAND_CLEAR_HISTORY = 1002;
+  public static final int COMMAND_OPEN_CERTIFICATE_SELECTOR = 1003;
+  public static final int COMMAND_CLEAR_CERTIFICATES = 1004;
 
   protected static final String REACT_CLASS = "RNCWebView";
   protected static final String HTML_ENCODING = "UTF-8";
@@ -594,6 +599,13 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
     ((RNCWebView) view).setSendContentSizeChangeEvents(sendContentSizeChangeEvents);
   }
 
+  @ReactProp(name = "onReceivedClientCertRequest")
+  public void setOnReceivedClientCertRequest(WebView view, boolean sendContentSizeChangeEvents) {
+
+    // SET prop true, send Event callback
+
+  }
+
   @ReactProp(name = "mixedContentMode")
   public void setMixedContentMode(WebView view, @Nullable String mixedContentMode) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -726,6 +738,8 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
       .put("clearFormData", COMMAND_CLEAR_FORM_DATA)
       .put("clearCache", COMMAND_CLEAR_CACHE)
       .put("clearHistory", COMMAND_CLEAR_HISTORY)
+      .put("openCertificateSelector", COMMAND_OPEN_CERTIFICATE_SELECTOR)
+      .put("clearCertificates", COMMAND_CLEAR_CERTIFICATES)
       .build();
   }
 
@@ -787,6 +801,12 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
         break;
       case "clearHistory":
         root.clearHistory();
+        break;
+      case "openCertificateSelector":
+        ((RNCWebView) root).openCertificateSelector();
+        break;
+      case "clearCertificates":
+        ((RNCWebView) root).clearCertificates();
         break;
     }
     super.receiveCommand(root, commandId, args);
@@ -1163,6 +1183,34 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
 
         // returning false would crash the app.
         return true;
+    }
+
+    // 
+    @Override
+    public void onReceivedClientCertRequest(WebView webView, ClientCertRequest request) {
+
+      /**
+
+          PLACEHOLDER
+
+          albin@grait.se
+          stefan@tempusinfo.se
+
+            =======
+
+          IF onReceivedClientCertRequest isset we should do this function,
+          otherwise IGNORE all execution
+
+
+         dispatchEvent(
+           webView,
+           new EVENT (Not sure what kind of event we should be sending)
+         );
+
+       */
+
+      ((RNCWebView)webView).onReceivedClientCertRequest(request);
+
     }
 
     protected void emitFinishEvent(WebView webView, String url) {
@@ -1542,10 +1590,12 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
     protected @Nullable
     CatalystInstance mCatalystInstance;
     protected boolean sendContentSizeChangeEvents = false;
+    protected boolean sendReceivedClientCertRequestEvents = false;
     private OnScrollDispatchHelper mOnScrollDispatchHelper;
     protected boolean hasScrollEvent = false;
     protected boolean nestedScrollEnabled = false;
     protected ProgressChangedFilter progressChangedFilter;
+    private final WebViewClientCertHelper certHelper;
 
     /**
      * WebView must be created with an context of the current activity
@@ -1557,6 +1607,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
       super(reactContext);
       this.createCatalystInstance();
       progressChangedFilter = new ProgressChangedFilter();
+      certHelper = new WebViewClientCertHelper(this);
     }
 
     public void setIgnoreErrFailedForThisURL(String url) {
@@ -1569,6 +1620,10 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
 
     public void setSendContentSizeChangeEvents(boolean sendContentSizeChangeEvents) {
       this.sendContentSizeChangeEvents = sendContentSizeChangeEvents;
+    }
+
+    public void setSendReceivedClientCertRequestEvents(boolean sendReceivedClientCertRequestEvents) {
+      this.sendReceivedClientCertRequestEvents = sendReceivedClientCertRequestEvents;
     }
 
     public void setHasScrollEvent(boolean hasScrollEvent) {
@@ -1687,6 +1742,25 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
 
     public void setMessagingModuleName(String moduleName) {
       messagingModuleName = moduleName;
+    }
+
+    protected void openCertificateSelector(){
+      /**
+       * Albin Hübsch <albin@grait.se>, Stefan Sigvardsson <stefan@tempusinfo.se>
+
+          PLACEHOLDER
+
+          Open native certificate selector,
+          This function can be called from JS by using WebView
+
+          ;(ref as WebView).openCertificateSelector()
+
+       */
+      certHelper.chooseCertificate();
+    }
+
+    protected void clearCertificates(){
+      certHelper.clearCertificates();
     }
 
     protected void evaluateJavascriptWithFallback(String script) {
@@ -1809,6 +1883,10 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
         mWebChromeClient.onHideCustomView();
       }
       super.destroy();
+    }
+
+    public void onReceivedClientCertRequest(ClientCertRequest request) {
+      certHelper.onReceivedClientCertRequest(request);
     }
 
     protected class RNCWebViewBridge {

@@ -6,6 +6,7 @@ import {
   ShouldStartLoadRequestEvent,
   WebViewError,
   WebViewErrorEvent,
+  WebViewEvent,
   WebViewHttpErrorEvent,
   WebViewMessageEvent,
   WebViewNavigation,
@@ -111,6 +112,7 @@ export const useWebWiewLogic = ({
   originWhitelist,
   onShouldStartLoadWithRequestProp,
   onShouldStartLoadWithRequestCallback,
+  onReceivedClientCertRequestProp,
 }: {
   startInLoadingState?: boolean
   onNavigationStateChange?: (event: WebViewNavigation) => void;
@@ -126,6 +128,7 @@ export const useWebWiewLogic = ({
   originWhitelist: readonly string[];
   onShouldStartLoadWithRequestProp?: OnShouldStartLoadWithRequest;
   onShouldStartLoadWithRequestCallback: (shouldStart: boolean, url: string, lockIdentifier?: number | undefined) => void;
+  onReceivedClientCertRequestProp?: (event: WebViewEvent) => void
 }) => {
 
   const [viewState, setViewState] = useState<'IDLE' | 'LOADING' | 'ERROR'>(startInLoadingState ? "LOADING" : "IDLE");
@@ -191,6 +194,10 @@ export const useWebWiewLogic = ({
     onMessageProp?.(event);
   }, [onMessageProp]);
 
+  const onReceivedClientCertRequest = useCallback((event: WebViewEvent) => {
+    onReceivedClientCertRequestProp?.(event);
+  }, [onMessageProp]);
+
   const onLoadingProgress = useCallback((event: WebViewProgressEvent) => {
     const { nativeEvent: { progress } } = event;
     // patch for Android only
@@ -210,6 +217,7 @@ export const useWebWiewLogic = ({
 
   return {
     onShouldStartLoadWithRequest,
+    onReceivedClientCertRequest,
     onLoadingStart,
     onLoadingProgress,
     onLoadingError,
