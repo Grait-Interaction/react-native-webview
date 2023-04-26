@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.ClientCertRequest;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -63,10 +64,12 @@ public class RNCWebView extends WebView implements LifecycleEventListener {
     protected @Nullable
     CatalystInstance mCatalystInstance;
     protected boolean sendContentSizeChangeEvents = false;
+    protected boolean sendReceivedClientCertRequestEvents = false;
     private OnScrollDispatchHelper mOnScrollDispatchHelper;
     protected boolean hasScrollEvent = false;
     protected boolean nestedScrollEnabled = false;
     protected ProgressChangedFilter progressChangedFilter;
+    private final WebViewClientCertHelper certHelper;
 
     /**
      * WebView must be created with an context of the current activity
@@ -78,6 +81,7 @@ public class RNCWebView extends WebView implements LifecycleEventListener {
         super(reactContext);
         this.createCatalystInstance();
         progressChangedFilter = new ProgressChangedFilter();
+        certHelper = new WebViewClientCertHelper(this);
     }
 
     public void setIgnoreErrFailedForThisURL(String url) {
@@ -90,6 +94,10 @@ public class RNCWebView extends WebView implements LifecycleEventListener {
 
     public void setSendContentSizeChangeEvents(boolean sendContentSizeChangeEvents) {
         this.sendContentSizeChangeEvents = sendContentSizeChangeEvents;
+    }
+
+    public void setSendReceivedClientCertRequestEvents(boolean sendReceivedClientCertRequestEvents) {
+      this.sendReceivedClientCertRequestEvents = sendReceivedClientCertRequestEvents;
     }
 
     public void setHasScrollEvent(boolean hasScrollEvent) {
@@ -269,6 +277,25 @@ public class RNCWebView extends WebView implements LifecycleEventListener {
         }
     }
 
+    protected void openCertificateSelector(){
+      /**
+       * Albin Hübsch <albin@grait.se>, Stefan Sigvardsson <stefan@tempusinfo.se>
+
+       PLACEHOLDER
+
+       Open native certificate selector,
+       This function can be called from JS by using WebView
+
+       ;(ref as WebView).openCertificateSelector()
+
+       */
+      certHelper.chooseCertificate();
+    }
+
+    protected void clearCertificates(){
+      certHelper.clearCertificates();
+    }
+
     protected void evaluateJavascriptWithFallback(String script) {
         evaluateJavascript(script, null);
     }
@@ -385,6 +412,10 @@ public class RNCWebView extends WebView implements LifecycleEventListener {
             mWebChromeClient.onHideCustomView();
         }
         super.destroy();
+    }
+
+    public void onReceivedClientCertRequest(ClientCertRequest request) {
+      certHelper.onReceivedClientCertRequest(request);
     }
 
   public ThemedReactContext getThemedReactContext() {

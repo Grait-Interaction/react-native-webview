@@ -6,6 +6,7 @@ import android.net.http.SslError;
 import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
+import android.webkit.ClientCertRequest;
 import android.webkit.HttpAuthHandler;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.SslErrorHandler;
@@ -292,6 +293,34 @@ public class RNCWebViewClient extends WebViewClient {
 
         // returning false would crash the app.
         return true;
+    }
+
+    //
+    @Override
+    public void onReceivedClientCertRequest(WebView webView, ClientCertRequest request) {
+
+      /**
+
+       PLACEHOLDER
+
+       albin@grait.se
+       stefan@tempusinfo.se
+
+       =======
+
+       IF onReceivedClientCertRequest isset we should do this function,
+       otherwise IGNORE all execution
+
+
+       dispatchEvent(
+       webView,
+       new EVENT (Not sure what kind of event we should be sending)
+       );
+
+       */
+
+      ((RNCWebView)webView).onReceivedClientCertRequest(request);
+
     }
 
     protected void emitFinishEvent(WebView webView, String url) {

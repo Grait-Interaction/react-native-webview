@@ -65,6 +65,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
   source,
   nativeConfig,
   onShouldStartLoadWithRequest: onShouldStartLoadWithRequestProp,
+  onReceivedClientCertRequest: onReceivedClientCertRequestProp,
   injectedJavaScriptObject,
   ...otherProps
 }, ref) => {
@@ -81,7 +82,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     }
   }, []);
 
-  const { onLoadingStart, onShouldStartLoadWithRequest, onMessage, viewState, setViewState, lastErrorEvent, onHttpError, onLoadingError, onLoadingFinish, onLoadingProgress, onOpenWindow, onRenderProcessGone } = useWebViewLogic({
+  const { onLoadingStart, onShouldStartLoadWithRequest, onReceivedClientCertRequest, onMessage, viewState, setViewState, lastErrorEvent, onHttpError, onLoadingError, onLoadingFinish, onLoadingProgress, onOpenWindow, onRenderProcessGone } = useWebViewLogic({
     onNavigationStateChange,
     onLoad,
     onError,
@@ -96,6 +97,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     originWhitelist,
     onShouldStartLoadWithRequestProp,
     onShouldStartLoadWithRequestCallback,
+    onReceivedClientCertRequestProp,
   })
 
   useImperativeHandle(ref, () => ({
@@ -116,6 +118,8 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     clearFormData: () => webViewRef.current && Commands.clearFormData(webViewRef.current),
     clearCache: (includeDiskFiles: boolean) => webViewRef.current && Commands.clearCache(webViewRef.current, includeDiskFiles),
     clearHistory: () => webViewRef.current && Commands.clearHistory(webViewRef.current),
+    openCertificateSelector: () => webViewRef.current && Commands.openCertificateSelector(webViewRef.current),
+    clearCertificates: () => webViewRef.current && Commands.clearCertificates(webViewRef.current)
   }), [setViewState, webViewRef]);
 
   const directEventCallbacks = useMemo(() => ({
@@ -190,6 +194,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     onOpenWindow={onOpenWindow}
     hasOnOpenWindowEvent={onOpenWindowProp !== undefined}
     onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
+    onReceivedClientCertRequest={onReceivedClientCertRequest}
     ref={webViewRef}
     // TODO: find a better way to type this.
     // @ts-expect-error source is old arch

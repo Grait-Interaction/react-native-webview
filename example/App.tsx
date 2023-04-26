@@ -19,6 +19,7 @@ import Injection from './examples/Injection';
 import LocalPageLoad from './examples/LocalPageLoad';
 import Messaging from './examples/Messaging';
 import NativeWebpage from './examples/NativeWebpage';
+import TestCertificate from './examples/TestCertificate';
 import ApplePay from './examples/ApplePay';
 import CustomMenu from './examples/CustomMenu';
 import OpenWindow from './examples/OpenWindow';
@@ -104,6 +105,14 @@ const TESTS = {
     description: 'Test to open a new webview with a link',
     render() {
       return <NativeWebpage />;
+    },
+  },
+  TestCertificate: {
+    title: 'TestCertificate',
+    testId: 'TestCertificate',
+    description: 'Test to open certificate selector',
+    render() {
+      return <TestCertificate />;
     },
   },
   ApplePay: {
@@ -223,6 +232,13 @@ export default class App extends Component<Props, State> {
             title="NativeWebpage"
             onPress={() => this._changeTest('NativeWebpage')}
           />
+          {Platform.OS === 'android' ? 
+            <Button
+              testID="testType_nativeOpenCertificateDialog"
+              title="Select Certificate"
+              onPress={() => this._changeTest('TestCertificate')}
+            />
+          :null}
           {Platform.OS === 'ios' && (
               <Button
                   testID="testType_applePay"

@@ -24,7 +24,12 @@ type WebViewCommands =
   | 'requestFocus'
   | 'clearCache';
 
-type AndroidWebViewCommands = 'clearHistory' | 'clearFormData';
+type AndroidWebViewCommands =
+  | 'clearHistory'
+  | 'clearCache'
+  | 'clearFormData'
+  | 'openCertificateSelector'
+  | 'clearCertificates';
 
 interface RNCWebViewUIManager<Commands extends string> extends UIManagerStatic {
   getViewManagerConfig: (name: string) => {
@@ -914,6 +919,7 @@ export interface MacOSWebViewProps extends WebViewSharedProps {
 export interface AndroidWebViewProps extends WebViewSharedProps {
   onNavigationStateChange?: (event: WebViewNavigation) => void;
   onContentSizeChange?: (event: WebViewEvent) => void;
+  onReceivedClientCertRequest?: (event: WebViewEvent) => void;
 
   /**
    * Function that is invoked when the `WebView` process crashes or is killed by the OS.

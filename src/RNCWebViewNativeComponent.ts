@@ -152,6 +152,7 @@ export interface NativeProps extends ViewProps {
   messagingModuleName: string;
   minimumFontSize?: Int32;
   mixedContentMode?: WithDefault<'never' | 'always' | 'compatibility', 'never'>;
+  onReceivedClientCertRequest?: DirectEventHandler<WebViewNativeEvent>;
   nestedScrollEnabled?: boolean;
   onContentSizeChange?: DirectEventHandler<WebViewNativeEvent>;
   onRenderProcessGone?: DirectEventHandler<WebViewRenderProcessGoneEvent>;
@@ -269,11 +270,13 @@ export interface NativeCommands {
   clearFormData: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
   clearCache: (viewRef: React.ElementRef<HostComponent<NativeProps>>, includeDiskFiles: boolean) => void;
   clearHistory: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
+  openCertificateSelector: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
+  clearCertificates: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
   // !Android Only
 }
 
 export const Commands = codegenNativeCommands<NativeCommands>({
-  supportedCommands: ['goBack', 'goForward', 'reload', 'stopLoading', 'injectJavaScript', 'requestFocus', 'postMessage', 'loadUrl', 'clearFormData', 'clearCache', 'clearHistory'],
+  supportedCommands: ['goBack', 'goForward', 'reload', 'stopLoading', 'injectJavaScript', 'requestFocus', 'postMessage', 'loadUrl', 'clearFormData', 'clearCache', 'clearHistory', 'openCertificateSelector', 'clearCertificates'],
 });
 
 export default codegenNativeComponent<NativeProps>(

@@ -288,6 +288,8 @@ class RNCWebViewManagerImpl {
     val COMMAND_CLEAR_FORM_DATA = 1000
     val COMMAND_CLEAR_CACHE = 1001
     val COMMAND_CLEAR_HISTORY = 1002
+    val COMMAND_OPEN_CERTIFICATE_SELECTOR = 1003;
+    val COMMAND_CLEAR_CERTIFICATES = 1004;
 
     fun getCommandsMap(): Map<String, Int>? {
       return MapBuilder.builder<String, Int>()
@@ -302,6 +304,8 @@ class RNCWebViewManagerImpl {
         .put("clearFormData", COMMAND_CLEAR_FORM_DATA)
         .put("clearCache", COMMAND_CLEAR_CACHE)
         .put("clearHistory", COMMAND_CLEAR_HISTORY)
+        .put("openCertificateSelector", COMMAND_OPEN_CERTIFICATE_SELECTOR)
+        .put("clearCertificates", COMMAND_CLEAR_CERTIFICATES)
         .build()
     }
 
@@ -346,7 +350,15 @@ class RNCWebViewManagerImpl {
           webView.clearCache(includeDiskFiles)
         }
         "clearHistory" -> webView.clearHistory()
+        "openCertificateSelector" -> webView.openCertificateSelector()
+        "clearCertificates" -> webView.clearCertificates()
       }
+    }
+
+    fun setOnReceivedClientCertRequest(viewWrapper: RNCWebViewWrapper, value: Boolean) {
+
+      // SET prop true, send Event callback
+
     }
 
     fun setMixedContentMode(viewWrapper: RNCWebViewWrapper, mixedContentMode: String?) {
